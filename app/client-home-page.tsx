@@ -1,14 +1,14 @@
 'use client'
 
-import {useState} from "react";
+import {Suspense, useState} from "react";
 import UserFormModal from "@/app/ui/user-form-modal";
-import {toLocalDatetimeValue} from "@/app/lib/utils";
-import {Pencil, Trash} from "lucide-react";
 import {User} from "@prisma/client";
 import {deleteUser} from "@/app/lib/actions";
 import DeleteConfirmModal from "@/app/ui/delete-confirm-modal";
 import toast from "react-hot-toast";
 import ExcelUploadModal from "@/app/ui/excel-upload-modal";
+import UserTable from "@/app/ui/user-table";
+import TableSkeleton from "@/app/ui/skeletons";
 
 export default function ClientHomePage({users}: { users: User[] }) {
     const [userFormModalOpen, setUserFormModalOpen] = useState(false);
@@ -40,6 +40,11 @@ export default function ClientHomePage({users}: { users: User[] }) {
         setUserFormModalOpen(true);
     };
 
+    const openDelete = (user: User) => {
+        setUserToDelete(user);
+        setDeleteModalOpen(true);
+    }
+
     return (
         <main className="p-6">
             <div className="flex justify-between items-center mb-4">
@@ -57,46 +62,9 @@ export default function ClientHomePage({users}: { users: User[] }) {
                     Upload from Excel
                 </button>
             </div>
-            <table className="table-auto w-full border-collapse border border-gray-200">
-                <thead>
-                <tr>
-                    <th className="border px-4 py-2">ID</th>
-                    <th className="border px-4 py-2">Email</th>
-                    <th className="border px-4 py-2">Name</th>
-                    <th className="border px-4 py-2">Created At</th>
-                    <th className="border px-4 py-2">Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                {users.map((user) => (
-                    <tr key={user.id}>
-                        <td className="border px-4 py-2">{user.id}</td>
-                        <td className="border px-4 py-2">{user.email}</td>
-                        <td className="border px-4 py-2">{user.name || '-'}</td>
-                        <td className="border px-4 py-2">{toLocalDatetimeValue(new Date(user.createdAt))}</td>
-                        <td className="border px-4 py-2">
-                            <button
-                                onClick={() => openEdit(user)}
-                                className="text-blue-600 hover:text-blue-800 p-2"
-                                title="Edit"
-                            >
-                                <Pencil className="w-5 h-5"/>
-                            </button>
-                            <button
-                                onClick={() => {
-                                    setUserToDelete(user);
-                                    setDeleteModalOpen(true);
-                                }}
-                                className="text-red-600 hover:text-red-800 p-1"
-                                title="Delete"
-                            >
-                                <Trash className="w-5 h-5"/>
-                            </button>
-                        </td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
+            <Suspense key="user-table-suspense" fallback={<TableSkeleton/>}>
+                <UserTable users={users} onEditAction={openEdit} onDeleteAction={openDelete}/>
+            </Suspense>
             <UserFormModal
                 isOpen={userFormModalOpen}
                 onCloseAction={() => setUserFormModalOpen(false)}

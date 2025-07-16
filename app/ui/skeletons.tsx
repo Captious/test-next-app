@@ -1,4 +1,4 @@
-export default function TableSkeleton() {
+export function TableSkeleton() {
     return (
         <table className="w-full border animate-pulse">
             <thead>
@@ -16,5 +16,28 @@ export default function TableSkeleton() {
             ))}
             </tbody>
         </table>
+    );
+}
+
+export default function HomeSkeleton() {
+    return (
+        <main className="p-6">
+            <div className="flex justify-between items-center mb-4">
+                <h1 className="text-xl font-bold">Users</h1>
+                <button
+                    disabled={true}
+                    className="bg-blue-600 text-white px-4 py-2 rounded"
+                >
+                    + Add User
+                </button>
+                <button
+                    disabled={true}
+                    className="bg-green-600 text-white px-4 py-2 rounded"
+                >
+                    Upload from Excel
+                </button>
+            </div>
+            <TableSkeleton/>
+        </main>
     );
 }
